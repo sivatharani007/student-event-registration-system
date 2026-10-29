@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Admin dashboard{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<div class="container section pt-0">
+  <div class="row g-3 mb-4">
+    {% for label, value, icon in [('Total events', stats.events, 'bi-calendar2-event'), ('Upcoming events', stats.upcoming, 'bi-calendar-check'), ('Students', stats.students, 'bi-mortarboard'), ('Registered', stats.registered, 'bi-ticket-perforated'), ('Waitlisted', stats.waitlisted, 'bi-hourglass-split'), ('Seats filled', stats.fill_rate ~ '%', 'bi-pie-chart')] %}
+    <div class="col-6 col-lg-2"><div class="stat-card text-start"><i class="bi {{ icon }}"></i><div class="stat-num">{{ value }}</div><div class="text-muted small">{{ label }}</div></div></div>
+    {% endfor %}
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-6"><div class="card h-100"><div class="card-header bg-white"><strong>Registrations by category</strong></div><div class="card-body">
+      {% if chart_values %}<canvas id="adminChart" height="240" role="img" aria-label="Registrations by category"></canvas>{% else %}<p class="text-muted small mb-0">No registrations yet.</p>{% endif %}</div></div></div>
+    <div class="col-lg-6"><div class="card h-100"><div class="card-header bg-white d-flex justify-content-between"><strong>Latest registrations</strong><a class="small" href="{{ url_for('admin_registrations') }}">View all</a></div>
+      {% if recent %}<ul class="list-group list-group-flush">{% for r in recent %}<li class="list-group-item d-flex justify-content-between"><span><a class="text-decoration-none fw-semibold" href="{{ url_for('admin_registration_detail', registration_id=r.id) }}">{{ r.user.full_name }}</a><br><small class="text-muted">{{ r.event.name }}</small></span><span class="badge status-{{ r.status|lower }} align-self-center">{{ r.status }}</span></li>{% endfor %}</ul>
+      {% else %}<div class="card-body text-muted small">Nothing to show yet.</div>{% endif %}</div></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{% if chart_values %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('adminChart'), {
+  type: 'bar',
+  data: { labels: {{ chart_labels|tojson }}, datasets: [{ label: 'Registered students', data: {{ chart_values|tojson }}, backgroundColor: '#6d28d9', borderRadius: 6 }] },
+  options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+});
+</script>
+{% endif %}
+{% endblock %}

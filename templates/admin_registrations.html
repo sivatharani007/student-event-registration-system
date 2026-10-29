@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Registrations{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<div class="container section pt-0">
+  <form method="get" class="card card-body mb-3"><div class="row g-2 align-items-end">
+    <div class="col-md-4"><label class="form-label small" for="q">Search student</label><input class="form-control" id="q" name="q" value="{{ q }}" placeholder="Name, email or college"></div>
+    <div class="col-md-4"><label class="form-label small" for="event_id">Event</label><select class="form-select" id="event_id" name="event_id"><option value="">All events</option>{% for e in events %}<option value="{{ e.id }}" {{ 'selected' if event_id == e.id }}>{{ e.name }}</option>{% endfor %}</select></div>
+    <div class="col-md-2"><label class="form-label small" for="status">Status</label><select class="form-select" id="status" name="status"><option value="">Any</option>{% for s in ['Registered','Waitlisted','Cancelled'] %}<option {{ 'selected' if status == s }}>{{ s }}</option>{% endfor %}</select></div>
+    <div class="col-md-2 d-flex gap-2"><button class="btn btn-brand flex-fill" type="submit">Filter</button><a class="btn btn-outline-secondary" href="{{ url_for('admin_registrations') }}">Clear</a></div>
+  </div></form>
+  <div class="d-flex justify-content-between align-items-center mb-2"><span class="text-muted small">{{ regs|length }} registration{{ '' if regs|length == 1 else 's' }}</span>
+    <a class="btn btn-sm btn-outline-brand" href="{{ url_for('export_registrations', q=q, event_id=event_id or '', status=status) }}"><i class="bi bi-download"></i> Export CSV</a></div>
+  {% if regs %}
+  <div class="card"><div class="table-responsive"><table class="table align-middle mb-0">
+    <thead><tr><th>Student</th><th>Event</th><th>Department</th><th>Status</th><th>Registered</th><th></th></tr></thead>
+    <tbody>{% for r in regs %}<tr><td><div class="fw-semibold">{{ r.user.full_name }}</div><div class="small text-muted">{{ r.user.email }}</div></td>
+      <td>{{ r.event.name }}</td><td>{{ r.user.department }} · Y{{ r.user.year }}</td>
+      <td><span class="badge status-{{ r.status|lower }}">{{ r.status }}</span></td><td>{{ r.registered_at|dt }}</td>
+      <td class="text-end"><a class="btn btn-sm btn-outline-brand" href="{{ url_for('admin_registration_detail', registration_id=r.id) }}">Details</a></td></tr>{% endfor %}</tbody>
+  </table></div></div>
+  {% else %}<div class="empty-state"><i class="bi bi-people"></i><p>No registrations match these filters.</p></div>{% endif %}
+</div>
+{% endblock %}

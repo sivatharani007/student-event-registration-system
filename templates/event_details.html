@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ event.name }}{% endblock %}
+{% block content %}
+<div class="container section">
+  <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ url_for('explore_events') }}">Events</a></li><li class="breadcrumb-item active">{{ event.name }}</li></ol></nav>
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <img src="{{ event|poster }}" class="detail-img mb-4" alt="{{ event.name }} poster"
+           onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/posters/fallback.svg') }}'">
+      <span class="badge badge-cat-solid"><i class="bi {{ cat_icon(event.category) }}"></i> {{ event.category }}</span>
+      {% if event.status != 'published' %}<span class="badge text-bg-warning ms-1">{{ event.status|capitalize }}</span>{% endif %}
+      <h1 class="h2 fw-bold mt-2">{{ event.name }}</h1>
+      <p class="text-secondary" style="white-space: pre-line">{{ event.description }}</p>
+      <div class="row g-3 mt-1">
+        <div class="col-md-6"><div class="info-box"><h2 class="h6">Skills you can gain</h2>{% if event.skills_list %}<div>{% for s in event.skills_list %}<span class="badge chip">{{ s }}</span>{% endfor %}</div>{% else %}<span class="text-muted small">Not specified</span>{% endif %}</div></div>
+        <div class="col-md-6"><div class="info-box"><h2 class="h6">Required skills</h2><p class="small mb-0">{{ event.required_skills or 'None specified' }}</p></div></div>
+        <div class="col-12"><div class="info-box"><h2 class="h6">Benefits of participating</h2><p class="small mb-0">{{ event.benefits or 'Not specified' }}</p></div></div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card side-card sticky-lg-top" id="register" style="top: 90px">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3"><span class="h3 fw-bold mb-0 {{ 'text-success' if event.is_free }}">{{ event.fee|inr }}</span><span class="badge text-bg-light border">{{ event.seats_left }} / {{ event.capacity }} seats left</span></div>
+          <dl class="detail-list">
+            <dt><i class="bi bi-calendar3"></i> When</dt><dd>{{ event.start_time|dt }}<br><small class="text-muted">to {{ event.end_time|dt }}</small></dd>
+            <dt><i class="bi bi-geo-alt"></i> Venue</dt><dd>{{ event.venue }}</dd>
+            <dt><i class="bi bi-wifi"></i> Mode</dt><dd>{{ event.mode }}</dd>
+            <dt><i class="bi bi-hourglass-split"></i> Registration deadline</dt><dd>{{ event.registration_deadline|dt }}</dd>
+            <dt><i class="bi bi-bar-chart"></i> Skill level</dt><dd>{{ event.skill_level }}</dd>
+            <dt><i class="bi bi-mortarboard"></i> Eligibility</dt><dd>{{ event.eligible_list|join(', ') or 'All' }}</dd>
+            <dt><i class="bi bi-people"></i> Participation</dt><dd>{{ event.team_label }}</dd>
+            <dt><i class="bi bi-building"></i> Organizer</dt><dd>{{ event.organizer }}</dd>
+            {% if event.contact_email %}<dt><i class="bi bi-envelope"></i> Contact</dt><dd><a href="mailto:{{ event.contact_email }}">{{ event.contact_email }}</a></dd>{% endif %}
+          </dl>
+          {% if not current_user %}
+            <a class="btn btn-brand w-100" href="{{ url_for('login', next=request.path) }}">Log in to register</a>
+          {% elif registration and registration.status != 'Cancelled' %}
+            <div class="alert alert-success py-2 small mb-2"><i class="bi bi-check-circle"></i> Your status: <strong>{{ registration.status }}</strong></div>
+            <a class="btn btn-outline-brand w-100" href="{{ url_for('registration_confirmation', registration_id=registration.id) }}">View confirmation</a>
+          {% elif block_reason %}
+            <div class="alert alert-secondary small mb-2">{{ block_reason }}</div>
+            <button class="btn btn-secondary w-100" disabled>Registration unavailable</button>
+          {% else %}
+            <form method="post" action="{{ url_for('register_event', event_id=event.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-brand w-100" type="submit" data-loading>{{ 'Join Waitlist' if event.is_full else 'Register Now' }}</button>
+            </form>
+            {% if event.is_full %}<p class="small text-muted mt-2 mb-0">This event is full. You can join the waitlist and will be registered if a seat opens.</p>{% endif %}
+          {% endif %}
+          <p class="small text-muted mt-3 mb-0">The fee is shown for information only. No payment is taken here.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

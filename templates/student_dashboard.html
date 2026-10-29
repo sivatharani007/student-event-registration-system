@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="container section">
+  <h1 class="h2 fw-bold">Welcome, {{ current_user.full_name.split()[0] }}</h1>
+  <p class="text-muted">{{ current_user.department }} · Year {{ current_user.year }} · {{ current_user.college }}</p>
+  <div class="row g-3 mb-4">
+    {% for label, value, icon in [('Registered events', total, 'bi-ticket-perforated'), ('Upcoming', upcoming, 'bi-calendar-event'), ('Completed', completed, 'bi-check2-circle'), ('Saved events', saved, 'bi-heart')] %}
+    <div class="col-6 col-lg-3"><div class="stat-card text-start"><i class="bi {{ icon }}"></i><div class="stat-num">{{ value }}</div><div class="text-muted small">{{ label }}</div></div></div>
+    {% endfor %}
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card h-100"><div class="card-header bg-white d-flex justify-content-between"><strong>Recent registrations</strong><a href="{{ url_for('my_registrations') }}" class="small">View all</a></div>
+        {% if recent %}<ul class="list-group list-group-flush">{% for r in recent %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div><a class="fw-semibold text-decoration-none" href="{{ url_for('event_details', event_id=r.event.id) }}">{{ r.event.name }}</a><div class="small text-muted">{{ r.event.start_time|dt }}</div></div>
+            <span class="badge status-{{ r.status|lower }}">{{ r.status }}</span></li>{% endfor %}</ul>
+        {% else %}<div class="empty-state border-0"><i class="bi bi-ticket-perforated"></i><p>You have not registered for any events yet.</p><a class="btn btn-brand" href="{{ url_for('recommend_events') }}">Find my perfect event</a></div>{% endif %}
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card h-100"><div class="card-header bg-white"><strong>Registrations by category</strong></div>
+        <div class="card-body">{% if chart_values %}<canvas id="catChart" height="220" aria-label="Registrations by category chart" role="img"></canvas>
+          {% else %}<p class="text-muted small mb-0">Your chart appears after your first confirmed registration.</p>{% endif %}</div></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{% if chart_values %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('catChart'), {
+  type: 'doughnut',
+  data: { labels: {{ chart_labels|tojson }}, datasets: [{ data: {{ chart_values|tojson }},
+    backgroundColor: ['#6d28d9','#2563eb','#8b5cf6','#3b82f6','#a78bfa','#60a5fa','#4c1d95','#1d4ed8'] }] },
+  options: { plugins: { legend: { position: 'bottom' } } }
+});
+</script>
+{% endif %}
+{% endblock %}

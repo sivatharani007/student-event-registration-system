@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Manage events{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<div class="container section pt-0">
+  <div class="d-flex flex-wrap gap-2 justify-content-between mb-3">
+    <form method="get" class="d-flex gap-2"><input class="form-control" name="q" value="{{ q }}" placeholder="Search events"><button class="btn btn-outline-brand" type="submit">Search</button></form>
+    <a class="btn btn-brand" href="{{ url_for('add_event') }}"><i class="bi bi-plus-lg"></i> Add event</a>
+  </div>
+  {% if events %}
+  <div class="card"><div class="table-responsive"><table class="table align-middle mb-0">
+    <thead><tr><th>Event</th><th>Date</th><th>Fee</th><th>Seats</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+    <tbody>{% for e in events %}
+      <tr><td><a class="fw-semibold text-decoration-none" href="{{ url_for('event_details', event_id=e.id) }}">{{ e.name }}</a><div class="small text-muted">{{ e.category }}</div></td>
+        <td>{{ e.start_time|dt }}</td><td>{{ e.fee|inr }}</td>
+        <td><form method="post" action="{{ url_for('update_capacity', event_id=e.id) }}" class="d-flex align-items-center gap-1">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <span class="small text-nowrap">{{ e.seats_taken }} /</span>
+          <input class="form-control form-control-sm" style="width: 78px" type="number" min="1" max="100000" name="capacity" value="{{ e.capacity }}" aria-label="Capacity for {{ e.name }}">
+          <button class="btn btn-sm btn-outline-secondary" type="submit" title="Update capacity"><i class="bi bi-check2"></i></button></form>
+          {% if e.waitlist_count %}<div class="small text-muted">{{ e.waitlist_count }} waitlisted</div>{% endif %}</td>
+        <td><span class="badge {{ 'text-bg-success' if e.status == 'published' else 'text-bg-secondary' }}">{{ e.status }}</span>{% if e.has_ended %}<span class="badge text-bg-light border">ended</span>{% endif %}</td>
+        <td class="text-end text-nowrap"><a class="btn btn-sm btn-outline-brand" href="{{ url_for('edit_event', event_id=e.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('delete_event', event_id=e.id) }}" class="d-inline" data-confirm="Delete '{{ e.name }}' and all of its registrations? This cannot be undone.">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger" type="submit">Delete</button></form></td></tr>{% endfor %}
+    </tbody></table></div></div>
+  {% else %}<div class="empty-state"><i class="bi bi-calendar-x"></i><p>No events found.</p><a class="btn btn-brand" href="{{ url_for('add_event') }}">Add the first event</a></div>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<div class="container section"><div class="row justify-content-center"><div class="col-lg-8">
+  <h1 class="h2 fw-bold mb-3">My profile</h1>
+  <form method="post" class="card card-body" novalidate data-validate-passwords>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label" for="full_name">Full name</label><input class="form-control" id="full_name" name="full_name" required maxlength="120" value="{{ request.form.get('full_name', current_user.full_name) }}"></div>
+      <div class="col-md-6"><label class="form-label" for="email">Email (cannot be changed)</label><input class="form-control" id="email" value="{{ current_user.email }}" disabled></div>
+      <div class="col-md-6"><label class="form-label" for="college">College</label><input class="form-control" id="college" name="college" required maxlength="160" value="{{ request.form.get('college', current_user.college) }}"></div>
+      <div class="col-md-4"><label class="form-label" for="department">Department</label>
+        <select class="form-select" id="department" name="department">{% for d in C.DEPARTMENTS %}<option {{ 'selected' if request.form.get('department', current_user.department) == d }}>{{ d }}</option>{% endfor %}</select></div>
+      <div class="col-md-2"><label class="form-label" for="year">Year</label>
+        <select class="form-select" id="year" name="year">{% for y in C.YEARS %}<option value="{{ y }}" {{ 'selected' if (request.form.get('year', current_user.year))|string == y|string }}>{{ y }}</option>{% endfor %}</select></div>
+    </div>
+    <hr class="my-4"><h2 class="h6 fw-bold">Change password <small class="text-muted fw-normal">(optional)</small></h2>
+    <div class="row g-3">
+      <div class="col-md-4"><label class="form-label" for="current_password">Current password</label><input class="form-control" type="password" id="current_password" name="current_password" autocomplete="current-password"></div>
+      <div class="col-md-4"><label class="form-label" for="password">New password</label><input class="form-control" type="password" id="password" name="new_password" autocomplete="new-password"></div>
+      <div class="col-md-4"><label class="form-label" for="confirm_password">Confirm new password</label><input class="form-control" type="password" id="confirm_password" name="confirm_password" autocomplete="new-password"></div>
+    </div>
+    <button class="btn btn-brand mt-4 align-self-start" type="submit" data-loading>Save changes</button>
+  </form>
+</div></div></div>
+{% endblock %}

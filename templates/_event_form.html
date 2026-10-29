@@ -1,0 +1,39 @@
+<form method="post" novalidate data-loading-form>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="card card-body mb-4"><div class="row g-3">
+    <div class="col-md-8"><label class="form-label" for="name">Event name</label><input class="form-control" id="name" name="name" maxlength="160" required value="{{ v.name }}"></div>
+    <div class="col-md-4"><label class="form-label" for="category">Category</label><select class="form-select" id="category" name="category">{% for c in C.CATEGORIES %}<option {{ 'selected' if v.category == c }}>{{ c }}</option>{% endfor %}</select></div>
+    <div class="col-12"><label class="form-label" for="description">Description</label><textarea class="form-control" id="description" name="description" rows="4" required>{{ v.description }}</textarea></div>
+    <div class="col-md-4"><label class="form-label" for="event_type">Event type</label><select class="form-select" id="event_type" name="event_type">{% for c in C.EVENT_TYPES %}<option {{ 'selected' if v.event_type == c }}>{{ c }}</option>{% endfor %}</select></div>
+    <div class="col-md-4"><label class="form-label" for="kind">Kind</label><select class="form-select" id="kind" name="kind">{% for c in C.KINDS %}<option {{ 'selected' if v.kind == c }}>{{ c }}</option>{% endfor %}</select></div>
+    <div class="col-md-4"><label class="form-label" for="status">Status</label><select class="form-select" id="status" name="status">{% for c in C.EVENT_STATUSES %}<option {{ 'selected' if v.status == c }}>{{ c }}</option>{% endfor %}</select></div>
+    <div class="col-md-4"><label class="form-label" for="start_time">Starts</label><input class="form-control" type="datetime-local" id="start_time" name="start_time" required value="{{ v.start_time }}"></div>
+    <div class="col-md-4"><label class="form-label" for="end_time">Ends</label><input class="form-control" type="datetime-local" id="end_time" name="end_time" required value="{{ v.end_time }}"></div>
+    <div class="col-md-4"><label class="form-label" for="registration_deadline">Registration deadline</label><input class="form-control" type="datetime-local" id="registration_deadline" name="registration_deadline" required value="{{ v.registration_deadline }}"></div>
+    <div class="col-md-6"><label class="form-label" for="venue">Venue</label><input class="form-control" id="venue" name="venue" maxlength="200" required value="{{ v.venue }}"></div>
+    <div class="col-md-2"><label class="form-label" for="mode">Mode</label><select class="form-select" id="mode" name="mode">{% for c in C.MODES %}<option {{ 'selected' if v.mode == c }}>{{ c }}</option>{% endfor %}</select></div>
+    <div class="col-md-2"><label class="form-label" for="fee">Fee (₹)</label><input class="form-control" type="number" min="0" max="100000" id="fee" name="fee" required value="{{ v.fee }}"></div>
+    <div class="col-md-2"><label class="form-label" for="capacity">Capacity</label><input class="form-control" type="number" min="1" max="100000" id="capacity" name="capacity" required value="{{ v.capacity }}"></div>
+    <div class="col-md-4"><label class="form-label" for="skill_level">Skill level</label><select class="form-select" id="skill_level" name="skill_level">{% for c in C.EVENT_SKILL_LEVELS %}<option {{ 'selected' if v.skill_level == c }}>{{ c }}</option>{% endfor %}</select></div>
+    <div class="col-md-2"><label class="form-label" for="team_min">Team min</label><input class="form-control" type="number" min="1" max="50" id="team_min" name="team_min" value="{{ v.team_min }}"></div>
+    <div class="col-md-2"><label class="form-label" for="team_max">Team max</label><input class="form-control" type="number" min="1" max="50" id="team_max" name="team_max" value="{{ v.team_max }}"></div>
+    <div class="col-md-4"><label class="form-label" for="organizer">Organizer</label><input class="form-control" id="organizer" name="organizer" maxlength="160" required value="{{ v.organizer }}"></div>
+    <div class="col-md-6"><label class="form-label" for="contact_email">Contact email</label><input class="form-control" type="email" id="contact_email" name="contact_email" value="{{ v.contact_email }}"></div>
+    <div class="col-md-6"><label class="form-label" for="image_url">Image URL <small class="text-muted">(optional)</small></label><input class="form-control" id="image_url" name="image_url" placeholder="https://… or images/posters/hackathon.svg" value="{{ v.image_url }}"></div>
+    <div class="col-md-6"><label class="form-label" for="required_skills">Required skills</label><textarea class="form-control" id="required_skills" name="required_skills" rows="2">{{ v.required_skills }}</textarea></div>
+    <div class="col-md-6"><label class="form-label" for="benefits">Benefits</label><textarea class="form-control" id="benefits" name="benefits" rows="2">{{ v.benefits }}</textarea></div>
+    <div class="col-12"><label class="form-label" for="skills_gained">Skills gained <small class="text-muted">(comma separated, up to 8)</small></label><input class="form-control" id="skills_gained" name="skills_gained" value="{{ v.skills_gained }}"></div>
+  </div></div>
+  <div class="card card-body mb-4">
+    <h2 class="h6 fw-bold">Recommendation settings</h2>
+    <div class="mb-3"><div class="small fw-semibold mb-1">Eligible departments <span class="text-muted fw-normal">(choose "All" or specific ones)</span></div>
+      <div class="d-flex flex-wrap gap-2">{% for d in ['All'] + C.DEPARTMENTS %}<input type="checkbox" class="btn-check" id="el{{ loop.index }}" name="eligible" value="{{ d }}" {{ 'checked' if d in v.eligible }}><label class="btn btn-chip" for="el{{ loop.index }}">{{ d }}</label>{% endfor %}</div></div>
+    <div class="mb-3"><div class="small fw-semibold mb-1">Related interests</div>
+      <div class="d-flex flex-wrap gap-2">{% for i in C.INTERESTS %}<input type="checkbox" class="btn-check" id="ei{{ loop.index }}" name="interests" value="{{ i }}" {{ 'checked' if i in v.interests }}><label class="btn btn-chip" for="ei{{ loop.index }}">{{ i }}</label>{% endfor %}</div></div>
+    <div class="mb-3"><div class="small fw-semibold mb-1">Goals this event supports</div>
+      <div class="d-flex flex-wrap gap-2">{% for i in C.GOALS %}<input type="checkbox" class="btn-check" id="eg{{ loop.index }}" name="goals" value="{{ i }}" {{ 'checked' if i in v.goals }}><label class="btn btn-chip" for="eg{{ loop.index }}">{{ i }}</label>{% endfor %}</div></div>
+    <div class="form-check"><input class="form-check-input" type="checkbox" id="is_featured" name="is_featured" {{ 'checked' if v.is_featured }}><label class="form-check-label" for="is_featured">Show on the home page as featured</label></div>
+  </div>
+  <button class="btn btn-brand" type="submit" data-loading>{{ submit_label }}</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('admin_events') }}">Cancel</a>
+</form>

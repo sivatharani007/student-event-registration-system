@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Explore Events{% endblock %}
+{% block content %}
+<div class="container section">
+  <h1 class="h2 fw-bold">Explore events</h1>
+  <p class="text-muted">{{ events|length }} upcoming event{{ '' if events|length == 1 else 's' }} found.</p>
+  <form method="get" class="filter-bar card card-body mb-4" data-loading-form>
+    <div class="row g-2">
+      <div class="col-lg-4"><label class="form-label small" for="q">Search by name</label><input class="form-control" id="q" name="q" value="{{ filters.q }}" placeholder="e.g. hackathon"></div>
+      <div class="col-6 col-lg-2"><label class="form-label small" for="category">Category</label>
+        <select class="form-select" id="category" name="category"><option value="">All</option>{% for c in C.CATEGORIES %}<option {{ 'selected' if filters.category == c }}>{{ c }}</option>{% endfor %}</select></div>
+      <div class="col-6 col-lg-2"><label class="form-label small" for="date">Date</label>
+        <select class="form-select" id="date" name="date"><option value="">Any upcoming</option>{% for v, l in C.DATE_RANGES if v != 'any' %}<option value="{{ v }}" {{ 'selected' if filters.date == v }}>{{ l }}</option>{% endfor %}</select></div>
+      <div class="col-6 col-lg-2"><label class="form-label small" for="fee">Fee</label>
+        <select class="form-select" id="fee" name="fee"><option value="">Any fee</option>{% for v, l in C.BUDGETS if v != 'any' %}<option value="{{ v }}" {{ 'selected' if filters.fee == v }}>{{ 'Up to ' + l if v != 'free' else l }}</option>{% endfor %}</select></div>
+      <div class="col-6 col-lg-2"><label class="form-label small" for="mode">Mode</label>
+        <select class="form-select" id="mode" name="mode"><option value="">Any</option>{% for m in C.MODES %}<option {{ 'selected' if filters.mode == m }}>{{ m }}</option>{% endfor %}</select></div>
+      <div class="col-6 col-lg-3"><label class="form-label small" for="skill">Skill level</label>
+        <select class="form-select" id="skill" name="skill"><option value="">Any</option>{% for s in C.SKILL_LEVELS %}<option {{ 'selected' if filters.skill == s }}>{{ s }}</option>{% endfor %}</select></div>
+      <div class="col-6 col-lg-4"><label class="form-label small" for="department">Eligible department</label>
+        <select class="form-select" id="department" name="department"><option value="">Any</option>{% for d in C.DEPARTMENTS %}<option {{ 'selected' if filters.department == d }}>{{ d }}</option>{% endfor %}</select></div>
+      <div class="col-6 col-lg-2"><label class="form-label small" for="sort">Sort by</label>
+        <select class="form-select" id="sort" name="sort">
+          <option value="date" {{ 'selected' if filters.sort == 'date' }}>Upcoming date</option>
+          <option value="fee_asc" {{ 'selected' if filters.sort == 'fee_asc' }}>Fee: low to high</option>
+          <option value="fee_desc" {{ 'selected' if filters.sort == 'fee_desc' }}>Fee: high to low</option>
+          {% if scores %}<option value="score" {{ 'selected' if filters.sort == 'score' }}>Recommendation score</option>{% endif %}
+        </select></div>
+      <div class="col-12 col-lg-3 d-flex align-items-end gap-2">
+        <button class="btn btn-brand flex-fill" type="submit"><i class="bi bi-funnel"></i> Apply</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('explore_events') }}">Clear all</a>
+      </div>
+    </div>
+  </form>
+  {% if events %}
+  <div class="row g-4">{% for e in events %}{% set score = scores.get(e.id) if filters.sort == 'score' else none %}{% include "_event_card.html" %}{% endfor %}</div>
+  {% else %}
+  <div class="empty-state"><i class="bi bi-search"></i><h2 class="h5">No events match{{ ' these filters' if filtered else '' }}</h2>
+    <p>{{ 'Try removing a filter or clearing them all.' if filtered else 'There are no upcoming events yet.' }}</p>
+    {% if filtered %}<a class="btn btn-brand" href="{{ url_for('explore_events') }}">Clear all filters</a>{% endif %}</div>
+  {% endif %}
+</div>
+{% endblock %}

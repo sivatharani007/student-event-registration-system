@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Find My Perfect Event{% endblock %}
+{% block content %}
+<div class="container section">
+  <h1 class="h2 fw-bold">Find my perfect event</h1>
+  <p class="text-muted">Answer the questions below. Events are ranked with a transparent score out of 100.</p>
+
+  <div class="card mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <strong><i class="bi bi-sliders"></i> Your preferences</strong>
+      {% if outcome %}<button class="btn btn-sm btn-outline-brand" type="button" data-bs-toggle="collapse" data-bs-target="#prefs">Edit answers</button>{% endif %}
+    </div>
+    <div id="prefs" class="collapse {{ '' if outcome else 'show' }}">
+    <form method="post" class="card-body" id="rec-form" data-loading-form>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="row g-4">
+        <div class="col-md-6"><label class="form-label fw-semibold" for="department">1. What is your department?</label>
+          <select class="form-select" id="department" name="department" required>{% for d in C.DEPARTMENTS %}<option {{ 'selected' if prefs.department == d }}>{{ d }}</option>{% endfor %}</select></div>
+        <div class="col-md-6"><label class="form-label fw-semibold" for="goal">10. What is your primary goal?</label>
+          <select class="form-select" id="goal" name="goal" required><option value="">Choose…</option>{% for x in C.GOALS %}<option {{ 'selected' if prefs.goal == x }}>{{ x }}</option>{% endfor %}</select></div>
+        <div class="col-12"><div class="fw-semibold mb-2">2. What are your main interests? <small class="text-muted fw-normal">(choose one or more)</small></div>
+          <div class="d-flex flex-wrap gap-2">{% for i in C.INTERESTS %}
+            <input type="checkbox" class="btn-check" id="int{{ loop.index }}" name="interests" value="{{ i }}" {{ 'checked' if i in prefs.interests }}>
+            <label class="btn btn-chip" for="int{{ loop.index }}">{{ i }}</label>{% endfor %}</div></div>
+        <div class="col-md-6 col-lg-4"><label class="form-label fw-semibold" for="event_type">3. Event type</label>
+          <select class="form-select" id="event_type" name="event_type">{% for t in C.TYPE_PREFS %}<option {{ 'selected' if prefs.event_type == t }}>{{ t }}</option>{% endfor %}</select></div>
+        <div class="col-md-6 col-lg-4"><label class="form-label fw-semibold" for="skill_level">4. Skill level</label>
+          <select class="form-select" id="skill_level" name="skill_level">{% for t in C.SKILL_PREFS %}<option {{ 'selected' if prefs.skill_level == t }}>{{ t }}</option>{% endfor %}</select></div>
+        <div class="col-md-6 col-lg-4"><label class="form-label fw-semibold" for="mode">5. Participation mode</label>
+          <select class="form-select" id="mode" name="mode">{% for t in C.MODE_PREFS %}<option {{ 'selected' if prefs.mode == t }}>{{ t }}</option>{% endfor %}</select></div>
+        <div class="col-md-6 col-lg-4"><label class="form-label fw-semibold" for="budget">6. Maximum budget</label>
+          <select class="form-select" id="budget" name="budget">{% for v, l in C.BUDGETS %}<option value="{{ v }}" {{ 'selected' if prefs.budget == v }}>{{ l }}</option>{% endfor %}</select></div>
+        <div class="col-md-6 col-lg-4"><label class="form-label fw-semibold" for="date_range">7. Preferred event date</label>
+          <select class="form-select" id="date_range" name="date_range">{% for v, l in C.DATE_RANGES %}<option value="{{ v }}" {{ 'selected' if prefs.date_range == v }}>{{ l }}</option>{% endfor %}</select></div>
+        <div class="col-md-6 col-lg-4"><label class="form-label fw-semibold" for="duration">8. Time you can spend</label>
+          <select class="form-select" id="duration" name="duration">{% for v, l in C.DURATIONS %}<option value="{{ v }}" {{ 'selected' if prefs.duration == v }}>{{ l }}</option>{% endfor %}</select></div>
+        <div class="col-md-6 col-lg-4"><label class="form-label fw-semibold" for="participation">9. Individual or team?</label>
+          <select class="form-select" id="participation" name="participation">{% for v, l in C.PARTICIPATION %}<option value="{{ v }}" {{ 'selected' if prefs.participation == v }}>{{ l }}</option>{% endfor %}</select></div>
+        <div class="col-12"><div class="info-box">
+          <div class="fw-semibold mb-1">Make these answers strict (optional)</div>
+          <p class="small text-muted mb-2">Strict answers remove events that do not match. Flexible answers only change the score. Budget, date window and your department's eligibility are always strict.</p>
+          <div class="d-flex flex-wrap gap-3">{% for key, label in strict_options.items() %}
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="strict_{{ key }}" name="strict" value="{{ key }}" {{ 'checked' if key in prefs.strict }}><label class="form-check-label" for="strict_{{ key }}">Strict {{ label }}</label></div>{% endfor %}</div>
+        </div></div>
+      </div>
+      <button class="btn btn-brand btn-lg mt-4" type="submit" data-loading><i class="bi bi-stars"></i> Show my recommendations</button>
+    </form>
+    </div>
+  </div>
+
+  {% if outcome %}
+    <div class="alert alert-info small"><i class="bi bi-info-circle"></i> The match percentage is a <strong>preference-match score</strong> based on the rules above. It is not a guarantee that an event is objectively the best choice for you.</div>
+
+    {% macro rec_card(r, muted=false) %}
+    <div class="card rec-card mb-4"><div class="row g-0">
+      <div class="col-md-4"><img src="{{ r.event|poster }}" class="rec-img" alt="{{ r.event.name }} poster" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/posters/fallback.svg') }}'"></div>
+      <div class="col-md-8"><div class="card-body">
+        <div class="d-flex justify-content-between gap-3">
+          <div><span class="badge badge-cat-solid"><i class="bi {{ cat_icon(r.event.category) }}"></i> {{ r.event.category }}</span>
+            <h2 class="h5 fw-bold mt-2 mb-1">{{ r.event.name }}</h2></div>
+          <div class="score-ring" title="Preference-match score"><span>{{ r.score }}%</span><small>match</small></div>
+        </div>
+        <ul class="list-inline small text-muted mb-2">
+          <li class="list-inline-item"><i class="bi bi-calendar3"></i> {{ r.event.start_time|dt }}</li>
+          <li class="list-inline-item"><i class="bi bi-geo-alt"></i> {{ r.event.venue if r.event.mode != 'Online' else 'Online' }} ({{ r.event.mode }})</li>
+          <li class="list-inline-item"><i class="bi bi-cash-coin"></i> {{ r.event.fee|inr }}</li>
+          <li class="list-inline-item"><i class="bi bi-person-check"></i> {{ r.seats_left }} seats left</li>
+        </ul>
+        <p class="mb-2">{{ r.explanation }}</p>
+        {% if r.matched_interests %}<div class="mb-1 small"><strong>Matching interests:</strong> {% for i in r.matched_interests %}<span class="badge chip">{{ i }}</span>{% endfor %}</div>{% endif %}
+        {% if r.skills %}<div class="mb-2 small"><strong>Skills you can gain:</strong> {{ r.skills|join(', ') }}</div>{% endif %}
+        <details class="small mb-3"><summary>How this score was calculated</summary>
+          <ul class="mb-0 mt-1">{% for label, got, mx in r.breakdown %}<li>{{ label }}: {{ got }}{{ ' / ' ~ mx if mx else '' }}</li>{% endfor %}</ul></details>
+        <a class="btn btn-outline-brand" href="{{ url_for('event_details', event_id=r.event.id) }}">View Details</a>
+        <a class="btn btn-brand" href="{{ url_for('event_details', event_id=r.event.id) }}#register">Register Now</a>
+      </div></div>
+    </div></div>
+    {% endmacro %}
+
+    {% if outcome.results %}
+      <h2 class="h4 fw-bold mb-3">Your top {{ outcome.results|length }} match{{ '' if outcome.results|length == 1 else 'es' }}</h2>
+      {% for r in outcome.results %}{{ rec_card(r) }}{% endfor %}
+    {% endif %}
+
+    {% if outcome.message %}<div class="alert alert-warning">{{ outcome.message }}</div>{% endif %}
+
+    {% if outcome.alternatives %}
+      <h2 class="h5 fw-bold mb-3">{{ 'Other events that follow your strict requirements' if outcome.results else 'Closest alternatives' }}</h2>
+      {% for r in outcome.alternatives %}{{ rec_card(r) }}{% endfor %}
+    {% endif %}
+
+    {% if outcome.excluded %}
+      <div class="info-box"><div class="fw-semibold mb-1">Why some events were left out</div>
+        <ul class="small mb-0">{% for reason in outcome.excluded %}<li>{{ reason }}</li>{% endfor %}</ul></div>
+    {% endif %}
+    <div class="mt-3"><a class="btn btn-outline-brand" href="{{ url_for('explore_events', sort='score') }}">Browse all events sorted by score</a></div>
+  {% endif %}
+</div>
+{% endblock %}

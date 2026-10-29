@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Discover Events{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="container py-5">
+    <div class="row align-items-center py-lg-4">
+      <div class="col-lg-7">
+        <h1 class="display-4 fw-bold text-white">Discover Events. Explore Your Potential.</h1>
+        <p class="lead text-white-75 mt-3">Find the right opportunities, develop your skills, and connect with your campus community.</p>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+          <a class="btn btn-light btn-lg fw-semibold" href="{{ url_for('explore_events') }}">Explore Events</a>
+          <a class="btn btn-outline-light btn-lg" href="{{ url_for('recommend_events') }}">Find My Perfect Event</a>
+        </div>
+      </div>
+      <div class="col-lg-5 mt-4 mt-lg-0">
+        <div class="hero-panel">
+          <div class="d-flex align-items-center gap-3 mb-3"><i class="bi bi-stars fs-3"></i><strong>Smart recommendations</strong></div>
+          <p class="mb-0 small">Answer ten quick questions and get events ranked by a transparent score based on your interests, budget, skill level and time.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container stats-strip">
+  <div class="row g-3 text-center">
+    {% for label, value, icon in [('Upcoming events', stats.events, 'bi-calendar-event'), ('Students', stats.students, 'bi-mortarboard'), ('Registrations', stats.registrations, 'bi-ticket-perforated'), ('Active categories', stats.categories, 'bi-grid')] %}
+    <div class="col-6 col-md-3"><div class="stat-card"><i class="bi {{ icon }}"></i><div class="stat-num">{{ value }}</div><div class="text-muted small">{{ label }}</div></div></div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="container section">
+  <div class="d-flex justify-content-between align-items-end mb-3"><h2 class="h3 fw-bold mb-0">Featured events</h2><a href="{{ url_for('explore_events') }}">See all events</a></div>
+  {% if featured %}<div class="row g-4">{% for e in featured %}{% include "_event_card.html" %}{% endfor %}</div>
+  {% else %}<div class="empty-state"><i class="bi bi-calendar-x"></i><p>No featured events right now. Check back soon.</p></div>{% endif %}
+</section>
+
+<section class="container section">
+  <h2 class="h3 fw-bold mb-3">Popular categories</h2>
+  {% if categories %}
+  <div class="row g-3">
+    {% for name, count in categories %}
+    <div class="col-6 col-md-3"><a class="cat-card" href="{{ url_for('explore_events', category=name) }}"><i class="bi {{ cat_icon(name) }}"></i><span class="fw-semibold">{{ name }}</span><small class="text-muted">{{ count }} upcoming</small></a></div>
+    {% endfor %}
+  </div>
+  {% else %}<div class="empty-state"><i class="bi bi-grid"></i><p>Categories will appear when events are added.</p></div>{% endif %}
+</section>
+
+<section class="container section">
+  <h2 class="h3 fw-bold mb-3">Upcoming events</h2>
+  {% if soon %}<div class="row g-4">{% for e in soon %}{% include "_event_card.html" %}{% endfor %}</div>
+  {% else %}<div class="empty-state"><i class="bi bi-calendar-x"></i><p>No upcoming events yet.</p></div>{% endif %}
+</section>
+
+<section class="container section">
+  <h2 class="h3 fw-bold mb-4 text-center">How it works</h2>
+  <div class="row g-4">
+    {% for icon, title, text in [('bi-person-plus','Create your account','Sign up with your college email and department.'),('bi-sliders','Tell us what you like','Share your interests, budget, skill level and available time.'),('bi-bullseye','Get ranked matches','See events scored by how well they fit your preferences.'),('bi-check2-circle','Register in one click','Reserve a seat, or join the waitlist when an event is full.')] %}
+    <div class="col-md-6 col-lg-3"><div class="how-card h-100"><div class="how-icon"><i class="bi {{ icon }}"></i></div><h3 class="h6 fw-bold">{{ title }}</h3><p class="small text-secondary mb-0">{{ text }}</p></div></div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="container section">
+  <div class="cta-band text-center">
+    <h2 class="fw-bold">Ready to find your next event?</h2>
+    <p class="mb-4">It takes about a minute to get a personalised list.</p>
+    <a class="btn btn-light btn-lg fw-semibold" href="{{ url_for('recommend_events') }}">Find My Perfect Event</a>
+    {% if not current_user %}<a class="btn btn-outline-light btn-lg ms-2" href="{{ url_for('register') }}">Create account</a>{% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Registration #{{ reg.id }}{% endblock %}
+{% block content %}
+{% include "_admin_nav.html" %}
+<div class="container section pt-0"><div class="row g-4">
+  <div class="col-md-6"><div class="card h-100"><div class="card-header bg-white"><strong>Student</strong></div><div class="card-body"><dl class="detail-list mb-0">
+    <dt>Name</dt><dd>{{ reg.user.full_name }}</dd><dt>Email</dt><dd>{{ reg.user.email }}</dd><dt>College</dt><dd>{{ reg.user.college }}</dd>
+    <dt>Department</dt><dd>{{ reg.user.department }}</dd><dt>Year</dt><dd>{{ reg.user.year }}</dd><dt>Joined</dt><dd>{{ reg.user.created_at|day }}</dd></dl></div></div></div>
+  <div class="col-md-6"><div class="card h-100"><div class="card-header bg-white"><strong>Registration #{{ reg.id }}</strong></div><div class="card-body"><dl class="detail-list mb-0">
+    <dt>Event</dt><dd><a href="{{ url_for('event_details', event_id=reg.event.id) }}">{{ reg.event.name }}</a></dd>
+    <dt>Status</dt><dd><span class="badge status-{{ reg.status|lower }}">{{ reg.status }}</span></dd>
+    <dt>Registered at</dt><dd>{{ reg.registered_at|dt }}</dd>
+    {% if reg.cancelled_at %}<dt>Cancelled at</dt><dd>{{ reg.cancelled_at|dt }}</dd>{% endif %}
+    <dt>Event date</dt><dd>{{ reg.event.start_time|dt }}</dd><dt>Fee</dt><dd>{{ reg.event.fee|inr }}</dd></dl></div></div></div>
+</div><a class="btn btn-outline-secondary mt-3" href="{{ url_for('admin_registrations') }}">Back to registrations</a></div>
+{% endblock %}

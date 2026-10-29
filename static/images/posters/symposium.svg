@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Symposium">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4c1d95"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs>
+<rect width="640" height="360" fill="url(#g)"/>
+<circle cx="540" cy="60" r="130" fill="#fff" fill-opacity=".08"/>
+<circle cx="90" cy="330" r="110" fill="#fff" fill-opacity=".08"/>
+<circle cx="330" cy="180" r="70" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/>
+<text x="40" y="320" font-family="Segoe UI, Arial, sans-serif" font-size="44" font-weight="700" fill="#fff">Symposium</text>
+</svg>

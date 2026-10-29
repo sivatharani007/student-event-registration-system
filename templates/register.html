@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Create account{% endblock %}
+{% block content %}
+<div class="container auth-wrap">
+  <div class="row justify-content-center"><div class="col-lg-7">
+    <div class="card auth-card"><div class="card-body p-4 p-md-5">
+      <h1 class="h3 fw-bold mb-1">Create your student account</h1>
+      <p class="text-muted mb-4">Use your college email. We do not send verification emails in this version.</p>
+      <form method="post" novalidate data-validate-passwords>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label" for="full_name">Full name</label><input class="form-control" id="full_name" name="full_name" required maxlength="120" value="{{ values.get('full_name', '') }}"></div>
+          <div class="col-md-6"><label class="form-label" for="email">College email</label><input class="form-control" type="email" id="email" name="email" required maxlength="255" value="{{ values.get('email', '') }}"></div>
+          <div class="col-md-6"><label class="form-label" for="college">College name</label><input class="form-control" id="college" name="college" required maxlength="160" value="{{ values.get('college', '') }}"></div>
+          <div class="col-md-4"><label class="form-label" for="department">Department</label>
+            <select class="form-select" id="department" name="department" required>
+              <option value="">Choose…</option>
+              {% for d in C.DEPARTMENTS %}<option value="{{ d }}" {{ 'selected' if values.get('department') == d }}>{{ d }}</option>{% endfor %}
+            </select></div>
+          <div class="col-md-2"><label class="form-label" for="year">Year</label>
+            <select class="form-select" id="year" name="year" required>{% for y in C.YEARS %}<option value="{{ y }}" {{ 'selected' if values.get('year')|string == y|string }}>{{ y }}</option>{% endfor %}</select></div>
+          <div class="col-md-6"><label class="form-label" for="password">Password</label><input class="form-control" type="password" id="password" name="password" required minlength="8" autocomplete="new-password"><div class="form-text">At least 8 characters with a letter and a number.</div></div>
+          <div class="col-md-6"><label class="form-label" for="confirm_password">Confirm password</label><input class="form-control" type="password" id="confirm_password" name="confirm_password" required autocomplete="new-password"></div>
+        </div>
+        <button class="btn btn-brand w-100 mt-4" type="submit" data-loading>Create account</button>
+      </form>
+      <p class="text-center mt-3 mb-0 small">Already registered? <a href="{{ url_for('login') }}">Log in</a></p>
+    </div></div>
+  </div></div>
+</div>
+{% endblock %}

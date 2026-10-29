@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Registration confirmation{% endblock %}
+{% block content %}
+<div class="container section"><div class="row justify-content-center"><div class="col-lg-7">
+  <div class="card auth-card text-center"><div class="card-body p-4 p-md-5">
+    {% if reg.status == 'Registered' %}<div class="confirm-icon text-success"><i class="bi bi-check-circle-fill"></i></div><h1 class="h3 fw-bold">You're registered</h1>
+    {% elif reg.status == 'Waitlisted' %}<div class="confirm-icon text-warning"><i class="bi bi-hourglass-split"></i></div><h1 class="h3 fw-bold">You're on the waitlist</h1>
+    {% else %}<div class="confirm-icon text-secondary"><i class="bi bi-x-circle-fill"></i></div><h1 class="h3 fw-bold">Registration cancelled</h1>{% endif %}
+    <p class="text-muted">{{ reg.event.name }}</p>
+    <dl class="detail-list text-start mx-auto" style="max-width: 360px">
+      <dt>Status</dt><dd><span class="badge status-{{ reg.status|lower }}">{{ reg.status }}</span></dd>
+      <dt>Confirmation no.</dt><dd>#{{ reg.id }}</dd>
+      <dt>Registered on</dt><dd>{{ reg.registered_at|dt }}</dd>
+      <dt>Event date</dt><dd>{{ reg.event.start_time|dt }}</dd>
+      <dt>Venue</dt><dd>{{ reg.event.venue }}</dd>
+      <dt>Fee</dt><dd>{{ reg.event.fee|inr }} <small class="text-muted">(not charged by this app)</small></dd>
+    </dl>
+    <a class="btn btn-brand" href="{{ url_for('my_registrations') }}">My registrations</a>
+    <a class="btn btn-outline-brand" href="{{ url_for('explore_events') }}">Explore more</a>
+  </div></div>
+</div></div></div>
+{% endblock %}
