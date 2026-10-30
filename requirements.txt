@@ -4,8 +4,4 @@ Flask-WTF>=1.2,<2.0
 python-dotenv>=1.0
 gunicorn>=22.0; sys_platform != "win32"
 pytest>=8.0
-psycopg2-binary>=2.9,<3.0
-.venv/
-__pycache__/
-.env
-instance/
+
